@@ -2,50 +2,23 @@
 
 # NOTE: this example requires PyAudio because it uses the Microphone class
 import json
-from enum import Enum
+import Boxes
 
 import speech_recognition as sr
 
 # Import the required module for text
 # to speech conversion
 from word2number import w2n
-import pyttsx3
 
-import os
-
+import speaker as s
+import recognition as sr
 # obtain audio from the microphone
-r = sr.Recognizer()
-engine = pyttsx3.init()
-engine.setProperty('volume', 10.0)
-engine.setProperty('rate', 115)
+#r = sr.Recognizer()
 
-class Boxes(Enum):
-    Pink = 1 #Rosa
-    Green = 2 #Verde
-    Yellow = 3 #Amarillo
-    Blue = 4 #Azul
-    Red = 5 #Rojo
-    White = 6 #Blanco
-    Black = 7 #Negro
-    Orange = 8 #Naranja
-    Purple = 9 #Morado
-    Brown = 10 #Marron
-    Grey = 11 #Gris
-    Silver = 12 #Plateado
-    Gold = 13 #Dorado
-    Beige = 14 #Beige
-    Lilac = 15 #Lila
-    Light_blue = 16 #Azul clarito
-    Dark_blue = 17 #Azul oscuro
-    Violeta = 18 #Violet
-    Turqoise = 19 #Turquesa
-    Magenta = 20 #Magenta
+s.speack("Hi I am your voice assistant")
 
-engine.say("Hola soy tu asistente de voz")
-engine.runAndWait()
-
-WIT_AI_KEY = "Y3FGBAGFPLAM5FU2LIO6WM6EBAZU3AHN"  # Wit.ai keys are 32-character uppercase alphanumeric strings
-
+# engine.say("Hi i am your voice assistant")
+# engine.runAndWait()
 
 # Detecta el color de la caja
 def contains_color(voice_text):
@@ -55,7 +28,7 @@ def contains_color(voice_text):
 
 
 # El color de la caja de destino será el detectado
-def Search(voice_text):
+def Search(voice_text, cont_d):
     if "destiny" in voice_text:
         for box in cont_d:
             color = contains_color(voice_text)
@@ -64,11 +37,23 @@ def Search(voice_text):
 def searchfor(cont, item_to):
     for box in cont:
         for item in box["items"]:
-             print(item["name"])
              if item["name"] == item_to:
                  return box["name"]
     return "NONE"
 
+def orderDest(cont_d, name_d, number, cont_o):
+    for box in cont_d:
+        for item in box["items"]:
+            if item["name"] == name_d and item ["n"]!=0:
+                if item["n"] >= number:
+                    item["n"] = item["n"] - number
+                    return "Put " + str(number) + " " + item["name"] + " into the " + box["name"] + " box"
+                else:
+                    aDev = "Put " + str(item["n"]) + " " + item["name"] + " into the " + box["name"] + " box and leave the rest one at the origin " + cont_o["name"]
+                    item["n"] = 0
+                    return aDev
+
+    return "There are not " + str(number) + " " + item["name"] + " into the " + box["name"] + " box"
 
 def order(cont_d, cont_o):
     for box in cont_d:
@@ -77,21 +62,24 @@ def order(cont_d, cont_o):
             if num > 0:
                 box_to_search = searchfor(cont_o, item["name"])
                 if box_to_search != "NONE":
-                    return "Pick up " + str(num) + " " + item["name"] + ("s" if num > 1 else "") + " from origin box" + box_to_search
+                    return "Pick up " + str(num) + " " + item["name"] + ("s" if num > 1 else "") + \
+                           " from origin box " + box_to_search
+                else:
+                    return "The task cant be completed"
 
-    return "ERROR"
+    return "You have finished your task"
 
 
-with sr.Microphone() as source:
-    r.adjust_for_ambient_noise(source)
+# with sr.Microphone() as source:
+#     r.adjust_for_ambient_noise(source)
 
     # leer archivo
 
-    with open('fichero.json') as json_file:
-        data = json.load(json_file)
+with open('fichero.json') as json_file:
+    data = json.load(json_file)
 
-    cont_o = data["origin"]
-    cont_d = data["destiny"]
+cont_o = data["origin"]
+cont_d = data["destiny"]
 
     # print(cont_d)
     # print(cont_o)
@@ -101,41 +89,57 @@ with sr.Microphone() as source:
     #         print(item["item"] + " " + str(item["n"]))
 
 
-    while True:
-        print("Say something!")
+ordenTerminada = False
+while not ordenTerminada:
 
-        #Mandar orden
-        ord = order(cont_d, cont_o)
-        engine.say(ord)
-        print(ord + "\n")
-        engine.runAndWait()
-
-
-
-        #Escuchar
-        audio = r.listen(source)
-
-        WIT_AI_KEY = "Y3FGBAGFPLAM5FU2LIO6WM6EBAZU3AHN"  # Wit.ai keys are 32-character uppercase alphanumeric strings
-        try:
-            voice_text = r.recognize_wit(audio, key=WIT_AI_KEY)
-
-            number = w2n.word_to_num(voice_text)
-            print("Nums: " + str(number) )
+    #Mandar orden
+    ord = order(cont_d, cont_o)
+    s.speack(ord)
+    print(ord + "\n")
+    print("Say something!")
 
 
 
-            print("Creo que has dicho: " + voice_text)
-            engine.say(voice_text)
-            engine.runAndWait()
+    #Escuchar
+    #audio = r.listen(source)
+
+    try:
+        #voice_text = r.recognize_wit(audio, key=WIT_AI_KEY)
+        voice_text = sr.recognice()
+        number = sr.numbers(voice_text)
+
+        print("Usuario ha dicho: " + voice_text)
+        print("Numero transcrito: " + str(number))
+
+        if "repeat" in voice_text or ("dont" in voice_text and "understand" in voice_text):
+            # s.speack(ord)
+            print("Repetir orden")
+        elif ("okey" in voice_text):
+            print("TODO")
+        elif ("pick" in voice_text):
+
+            ordDest = "none"
+
+            for box in cont_o:
+                for item in box["items"]:
+                    if item["name"] in voice_text:
+                        ordDest = orderDest(cont_d, item["name"], number, box["name"])
+                        # ordenTerminada = True
+
+            while ("okey" not in voice_text):
+                s.speack(ordDest)
+                print("Ord2: " + ordDest + "\n")
+                # Tratar respuesta
+                voice_text = sr.recognice()
 
 
-        except ValueError:
-            engine.say("No se ha reconocido nigun numero")
 
-        except sr.UnknownValueError:
-            engine.say("Lo siento, no he entendido lo que has dicho")
-            engine.runAndWait()
-        except sr.RequestError as e:
-            print("Could not request results from Wit.ai service; {0}".format(e))
+    except ValueError:
+        s.speack("I didnt recognize any number")
+        print("Usuario ha dicho: " + voice_text)
+    except sr.sr.UnknownValueError:
+        s.speack("Sorry, I didnt understand you phrase")
+    except sr.sr.RequestError as e:
+        print("Could not request results from Wit.ai service; {0}".format(e))
+        s.speack("Sorry, I cant connect to my system")
 
-        # Tratar respuesta
