@@ -5,6 +5,7 @@ boxes= ["pink","green","yellow","blue","red","white","black","organe","purple","
         "silver","gold","beige","lilac","violeta","turgoise","magenta","fluor","cobalt","lapis"]
 word2num = {"uno":1,
             "un":1,
+            "una":1,
             "dos":2,
             "tres":3,
             "cuatro":4,

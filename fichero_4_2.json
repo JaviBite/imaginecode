@@ -1,0 +1,66 @@
+{
+"n_orig" : 2,
+"n_dest" : 2,
+"origin": [{
+            "name": 1,
+            "items": [{
+                "name": "amapola",
+                "n": 6
+            }]
+        },
+        {
+            "name": 2,
+            "items": [{
+                "name": "tulipan",
+                "n": 8
+            }]
+        },
+        {
+            "name": 3,
+            "items": [{
+                "name": "clavel",
+                "n": 8
+            }]
+        },
+        {
+            "name": 4,
+            "items": [{
+                "name": "girasol",
+                "n": 7
+            }]
+        }
+],
+
+"destiny": [
+     {
+        "name": 1,
+        "items": [
+            {
+                "name": "girasol",
+                "n": 2
+            },
+            {
+                "name": "tulipan",
+                "n": 1
+            }
+        ]
+    },
+    {
+        "name": 2,
+        "items": [
+            {
+                "name": "clavel",
+                "n": 1
+            },
+            {
+                "name": "amapola",
+                "n": 1
+            },
+            {
+                "name": "tulipan",
+                "n": 1
+            }
+        ]
+    }
+  ]
+}

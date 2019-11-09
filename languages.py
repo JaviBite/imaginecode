@@ -10,6 +10,7 @@ class en:
     bx= ""
     into_d = " into destiny "
     done = "done"
+    imposible = "Thats an imposible action"
 
     hola = " Hi, I am your voice assistant"
     algo = " Say something!"
@@ -25,8 +26,14 @@ class en:
     dest = "destiny"
     unders = "understand"
 
+    pause = "Task finished"
+    resume = "Task resumed"
+
     problema = "You had a problem"
     connex = "Sorry, I cant connect to my system"
+
+    end = "end"
+    res = "resume"
 
 
 
@@ -53,6 +60,11 @@ class es:
     task_end = "Tarea completada"
 
     there_not = " No hay "
+
+    imposible = "Esa accion es imposible"
+    pause = "Tarea finalizada"
+    resume = "Tarea reanudada"
+
     there = " alli "
     orig = "origen"
     dest = "destino"
@@ -60,3 +72,6 @@ class es:
     done = "hecho"
     problema = "Has tenido un problema"
     connex = "Perdón, no puedo conectarme a mi servidor"
+
+    end = "finalizar"
+    res = "comenzar"

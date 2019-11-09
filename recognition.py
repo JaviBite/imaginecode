@@ -13,7 +13,8 @@ def recognice():
     with sr.Microphone() as source:
         #r.adjust_for_ambient_noise(source)
         audio = r.listen(source)
-        return r.recognize_wit(audio, key=WIT_AI_KEY)
+        return r.recognize_sphinx(audio)
+        #return r.recognize_wit(audio, key=WIT_AI_KEY)
 
 def numbers(text):
     return w2n.word_to_num(text)
