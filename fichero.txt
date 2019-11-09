@@ -1,0 +1,31 @@
+{
+"n_orig" : 3,
+"n_dest" : 2,
+"origen": [
+  {"origen1":
+        {"nombre" : "peras",
+        "n" : 2}
+  },
+  {"origen2":
+        {"nombre" : "manzanas",
+         "n" : 3}
+  },
+  {"origen3":
+        {"nombre" : "uvas",
+        "n" : 2}
+  }
+],
+
+"destino": [
+  {"destino1":
+        {"nombre" : ["peras","manzanas"],
+        "n" : [1,2]
+        }
+  },
+  {"destino2":
+        {"nombre" : ["peras","manzanas","uvas"],
+        "n" : [1,1,2]
+        }
+  }
+]
+}
