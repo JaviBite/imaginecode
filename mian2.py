@@ -131,37 +131,42 @@ with sr.Microphone() as source:
         audio = r.listen(source)
 
         WIT_AI_KEY = "Y3FGBAGFPLAM5FU2LIO6WM6EBAZU3AHN"  # Wit.ai keys are 32-character uppercase alphanumeric strings
-        try:
-            voice_text = r.recognize_wit(audio, key=WIT_AI_KEY)
 
-            number = w2n.word_to_num(voice_text)
-            print("Nums: " + str(number) )
+        ordenTerminada = False
+        while not ordenTerminada:
+            try:
+                voice_text = r.recognize_wit(audio, key=WIT_AI_KEY)
 
+                number = w2n.word_to_num(voice_text)
+                print("Nums: " + str(number) )
 
-            for box in cont_o:
-                for item in box["items"]:
-                  if item["name"] in voice_text:
-                      ordDest = orderDest(cont_d, item["name"], number, box["name"])
-                      engine.say(ordDest)
-                      print(ordDest + "\n")
-                      engine.runAndWait()
+                if voice_text == "Repite" or voice_text == "No te entiendo":
+                    engine.say(ord)
+                    engine.runAndWait()
+                    audio = r.listen(source)
 
-
-
-            print("Creo que has dicho: " + voice_text)
-            engine.say(voice_text)
-            engine.runAndWait()
+      #          if voice_text == "ok" or voice_text == "okey" or voice_text == "It's okey":
 
 
+                for box in cont_o:
+                    for item in box["items"]:
+                      if item["name"] in voice_text:
+                          ordDest = orderDest(cont_d, item["name"], number, box["name"])
+                          engine.say(ordDest)
+                          print(ordDest + "\n")
+                          engine.runAndWait()
+                          ordenTerminada = True
 
 
-        except ValueError:
-            engine.say("No se ha reconocido ningun numero")
 
-        except sr.UnknownValueError:
-            engine.say("Lo siento, no he entendido lo que has dicho")
-            engine.runAndWait()
-        except sr.RequestError as e:
-            print("Could not request results from Wit.ai service; {0}".format(e))
+                print("Creo que has dicho: " + voice_text)
+                engine.say(voice_text)
+                engine.runAndWait()
 
-        # Tratar respuesta
+            except ValueError:
+                engine.say("No se ha reconocido ningun numero")
+            except sr.UnknownValueError:
+                engine.say("Lo siento, no he entendido lo que has dicho")
+                engine.runAndWait()
+            except sr.RequestError as e:
+                print("Could not request results from Wit.ai service; {0}".format(e))
