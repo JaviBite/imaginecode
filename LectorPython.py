@@ -1,6 +1,6 @@
 import json
 
-with open ('fichero.txt') as json_file:
+with open ('fichero.json') as json_file:
 	data = json.load(json_file)
 
 

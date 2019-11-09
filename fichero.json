@@ -1,0 +1,48 @@
+{
+"n_orig" : 3,
+"n_dest" : 2,
+"origin": [{
+            "name": "blue",
+            "items": {
+                "item": "glass",
+                "n": 5
+            }
+        },
+        {
+            "name": "pink",
+            "items": {
+                "item": "coco",
+                "n": 3
+            }
+        }
+    ],
+
+"destiny": [
+     {
+        "name": "blue",
+        "items": [
+            {
+                "item": "glass",
+                "n": 3
+            },
+            {
+                "item": "coco",
+                "n": 1
+            }
+        ]
+    },
+    {
+        "name": "blue",
+        "items": [
+            {
+                "item": "glass",
+                "n": 2
+            },
+            {
+                "item": "coco",
+                "n": 2
+            }
+        ]
+    }
+  ]
+}

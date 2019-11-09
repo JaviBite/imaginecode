@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # NOTE: this example requires PyAudio because it uses the Microphone class
+import json
 
 import speech_recognition as sr
 
@@ -8,11 +9,6 @@ import speech_recognition as sr
 # to speech conversion
 from word2number import w2n
 import pyttsx3
-
-class cont:
-    name = ""
-    items = ""
-    n = 0
 
 # obtain audio from the microphone
 r = sr.Recognizer()
@@ -23,53 +19,18 @@ engine.setProperty('rate', 115)
 engine.say("Hola soy tu asistente de voz")
 engine.runAndWait()
 
+WIT_AI_KEY = "Y3FGBAGFPLAM5FU2LIO6WM6EBAZU3AHN"  # Wit.ai keys are 32-character uppercase alphanumeric strings
+
 with sr.Microphone() as source:
+    r.adjust_for_ambient_noise(source)
 
     # leer archivo
 
-    cont_o = [{
-            "name": "blue",
-            "items": {
-                "item": "glass",
-                "n": 5
-            }
-        },
-        {
-            "name": "pink",
-            "items": {
-                "item": "coco",
-                "n": 3
-            }
-        }
-    ]
+    with open('fichero.json') as json_file:
+        data = json.load(json_file)
 
-    cont_d = [
-     {
-        "name": "blue",
-        "items": [
-            {
-                "item": "glass",
-                "n": 3
-            },
-            {
-                "item": "coco",
-                "n": 1
-            }
-        ]
-    },
-    {
-        "name": "blue",
-        "items": [
-            {
-                "item": "glass",
-                "n": 2
-            },
-            {
-                "item": "coco",
-                "n": 2
-            }
-        ]
-    }]
+    cont_o = data["origin"]
+    cont_d = data["destiny"]
 
     print(cont_d)
     print(cont_o)
@@ -81,20 +42,18 @@ with sr.Microphone() as source:
 
     while True:
         print("Say something!")
-        r.adjust_for_ambient_noise(source)
+
+        #Mandar orden
+
+
+        #Escuchar
         audio = r.listen(source)
 
-        WIT_AI_KEY = "Y3FGBAGFPLAM5FU2LIO6WM6EBAZU3AHN"  # Wit.ai keys are 32-character uppercase alphanumeric strings
         try:
             voice_text = r.recognize_wit(audio, key=WIT_AI_KEY)
             print("Wit.ai thinks you said: " + voice_text)
             number = w2n.word_to_num(voice_text)
             print("Nums: " + str(number) )
-            engine.say(voice_text)
-            engine.runAndWait()
-
-
-
 
 
         except ValueError:
@@ -104,3 +63,4 @@ with sr.Microphone() as source:
         except sr.RequestError as e:
             print("Could not request results from Wit.ai service; {0}".format(e))
 
+        # Tratar respuesta
