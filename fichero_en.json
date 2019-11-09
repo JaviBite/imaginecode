@@ -4,7 +4,7 @@
 "origin": [{
             "name": 1,
             "items": [{
-                "name": "flower",
+                "name": "poppy",
                 "n": 5
             }]
         },
@@ -22,7 +22,7 @@
         "name": 1,
         "items": [
             {
-                "name": "flower",
+                "name": "poppy",
                 "n": 3
             },
             {

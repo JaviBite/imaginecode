@@ -40,6 +40,13 @@ def plural(item):
     else:
         return "s"
 
+def remain_items(cont_d):
+    num = 0;
+    for box in cont_d:
+        for item in box["items"]:
+            num = num + item["n"]
+    return num
+
 # Detecta el item en cont del voice_text
 def searchfor_item(cont, voice):
     for box in cont:
@@ -52,8 +59,8 @@ def searchfor_item(cont, voice):
 def searchbox_from_item(cont, item_s):
     for box in cont:
         for item in box["items"]:
-            if item["name"] in item_s:
-                return box["name"]
+            if item["name"] in item_s and item["n"] > 0:
+                return str(box["name"])
     return "NONE"
 
 # Detecta el box de cont del voice_text
@@ -79,12 +86,15 @@ def orderDrop(cont_d, name_d, number, cont_o, to_drop):
                     return lan.drop + " " + str(number) + " " + item["name"] + (plural(item["name"]) if number > 1 else "") + \
                            lan.into_d + str(box["name"]) + " " + lan.bx
                 else:
-                    #aDev = "Put " + str(item["n"] - ) + " " + item["name"] + " into the " + str(box["name"]) \
-                    #       + " box and leave the rest one at the origin " + cont_o["name"]
-                    #item["n"] = 0
-                    return lan.drop + str(number) + " " + item["name"] + lan.back
+                    return lan.drop + " " + str(item["n"]) + " " + item["name"] + (plural(item["name"]) if item["n"] > 1 else "") + \
+                           lan.into_d + str(box["name"]) + " " + lan.bx
 
-    raise Exception
+    box_o = searchbox_from_item(cont_o, name_d)
+    return lan.drop + " " + str(number) + " " + name_d + (
+        plural(name_d) if number > 1 else "") + \
+           lan.into_o + str(box_o) + " " + lan.bx
+
+    #raise BaseException
 
 # modifica el contenedor cont_name de la lista cont los objetos item_name + n
 def modify(cont,cont_name,num,item_name):
@@ -96,17 +106,30 @@ def modify(cont,cont_name,num,item_name):
                     return None
     raise ExpImposible
 
+def search_more_boxes(cont_d,item_name,box_name):
+    extra = 0
+    for box in cont_d:
+        if box["name"] != box_name:
+            for item in box["items"]:
+                if item["name"] == item_name and item["n"] > 0:
+                    extra = extra + item["n"]
+    return extra
 
 def orderPick(cont_d, cont_o, to_pick, to_number):
     for box in cont_d:
         for item in box["items"]:
             num = item["n"]
+
             if num > 0:
+                extra = search_more_boxes(cont_d,item["name"],box["name"])
                 box_to_search = searchbox_from_item(cont_o, item["name"])
+                #print("HOLAAA: " + box_to_search)
+                if ("NONE" in box_to_search):
+                    return lan.task_end
                 to_pick[0] = box_to_search
                 to_number[0] = num
                 if box_to_search != "NONE":
-                    return lan.pick + " " + str(num) + " " + item["name"] + (plural(item["name"]) if num > 1 else "") + \
+                    return lan.pick + " " + str(num+extra) + " " + item["name"] + (plural(item["name"]) if num+extra > 1 else "") + \
                            lan.from_o + " " + str(box_to_search)
                 else:
                     return lan.task_cant
@@ -122,6 +145,11 @@ with open('fichero_4_2.json') as json_file:
 cont_o = data["origin"]
 cont_d = data["destiny"]
 
+all_items = remain_items(cont_d)
+#print("all: " + str(all_items))
+actual_items = all_items
+#print("actual: " + str(actual_items))
+
 ordenTerminada = False
 
 item_inHands = None
@@ -135,10 +163,14 @@ to_number[0] = 0
 
 s.speack(lan.hola)
 
+notify = True
+
 with sr.Microphone() as source:
     r.adjust_for_ambient_noise(source)
 
     while not ordenTerminada:
+
+        #print("actual: " + str(actual_items))
 
         ord = orderPick(cont_d, cont_o, to_pick, to_number) if item_inHands is None else \
             orderDrop(cont_d, item_inHands, num_inHands, cont_o, to_drop)
@@ -158,6 +190,7 @@ with sr.Microphone() as source:
         #Escuchar
         #audio = r.listen(source)
 
+        # noinspection PyBroadException
         try:
 
             if debug:
@@ -167,78 +200,100 @@ with sr.Microphone() as source:
                 print("Say something!")
                 audio = r.listen(source)
                 voice_text = r.recognize_wit(audio, key=WIT_AI_KEY)
-                voice_text = voice_text.replace('dejó','dejo')
-                voice_text = voice_text.replace('tulipán', 'tulipan')
+                voice_text = voice_text.replace('ó','o')
+                voice_text = voice_text.replace('á','a')
+                voice_text = voice_text.replace('ú', 'u')
+                voice_text = voice_text.replace('í', 'i')
+                voice_text = voice_text.replace('é', 'e')
 
-            if (lan.end in voice_text):
+            if (lan.rpt in voice_text or (lan.unders in voice_text)):
+                # s.speack(ord)
+                print("Repetir orden")
+                ignore = True
+            elif (lan.end in voice_text):
                 print(lan.pause)
                 s.speack(lan.pause)
                 voice_text = ""
                 while lan.res not in voice_text:
                     audio = r.listen(source)
                     voice_text = r.recognize_wit(audio, key=WIT_AI_KEY)
+                    #print("Ha dicho:" + voice_text)
                 s.speack(lan.resume)
-            elif (lan.rpt in voice_text or (lan.unders in voice_text)):
-                # s.speack(ord)
-                print("Repetir orden")
-
-            if lan.orig in voice_text:
-                before_box = voice_text[0:voice_text.index(lan.orig)]
-                after_box = voice_text[voice_text.index(lan.orig):]
             else:
-                before_box = voice_text[0:voice_text.index(lan.dest)]
-                after_box = voice_text[voice_text.index(lan.dest):]
 
-            if language == 'es':
-                number = Boxes.toNum(before_box) #srr.numbers(voice_text)
-                box_number = Boxes.toNum(after_box) #srr.numbers(voice_text)
-            else:
-                number = srr.numbers(before_box)
-                box_number = srr.numbers(after_box)
+                if lan.orig in voice_text:
+                    before_box = voice_text[0:voice_text.index(lan.orig)]
+                    after_box = voice_text[voice_text.index(lan.orig):]
+                else:
+                    before_box = voice_text[0:voice_text.index(lan.dest)]
+                    after_box = voice_text[voice_text.index(lan.dest):]
 
-            print(lan.creo + voice_text)
-            print("Item num: " + str(number)+ " Box: " + str(box_number))
+                if language == 'es':
+                    number = Boxes.toNum(before_box) #srr.numbers(voice_text)
+                    box_number = Boxes.toNum(after_box) #srr.numbers(voice_text)
+                else:
+                    number = srr.numbers(before_box)
+                    box_number = srr.numbers(after_box)
+
+                print(lan.creo + voice_text)
+                print("Item num: " + str(number)+ " Box: " + str(box_number))
 
 
-            if (lan.dest in voice_text):
-                if (lan.to_drop in voice_text):
-                    box = box_number
-                    if box == None:
-                        box = to_drop
-                    item_inHands_aux = searchfor_item(cont_d,voice_text)
-                    modify(cont_d, box, -num_inHands_aux, item_inHands_aux)
-                    item_inHands = None
-                    num_inHands = 0
+                if (lan.dest in voice_text):
+                    if (lan.to_drop in voice_text):
+                        box = box_number
+                        if box == None:
+                            box = to_drop
+                        num_inHands_aux = number
+                        item_inHands_aux = searchfor_item(cont_d,voice_text)
+                        modify(cont_d, box, -num_inHands_aux, item_inHands_aux)
+                        num_inHands = num_inHands - num_inHands_aux
+                        actual_items = actual_items - num_inHands_aux
 
-                elif lan.to_pick in voice_text:
-                    box = box_number
-                    if box == None:
-                        box = to_pick
-                    item_inHands_aux = searchfor_item(cont_d, voice_text)
-                    num_inHands_aux = number
-                    modify(cont_d, box,+num_inHands_aux, item_inHands_aux)
-                    num_inHands = num_inHands_aux
-                    item_inHands = item_inHands_aux
+                        if num_inHands == 0:
+                            item_inHands = None
 
-            elif (lan.orig in voice_text):
-                if (lan.to_drop in voice_text):
-                    box = box_number
-                    if box == None:
-                        box = to_drop
-                    item_inHands_aux = searchfor_item(cont_o, voice_text)
-                    modify(cont_o, box, +num_inHands_aux, item_inHands_aux)
-                    item_inHands = None
-                    num_inHands = 0
+                        if (notify and actual_items <= all_items/2):
+                            notify = not notify
+                            print(lan.half_work)
+                            s.speack(lan.half_work)
 
-                elif (lan.to_pick in voice_text):
-                    box = box_number
-                    if box == None:
-                        box = to_pick
-                    num_inHands_aux = number
-                    item_inHands_aux = searchfor_item(cont_o, voice_text)
-                    modify(cont_o, box, -num_inHands_aux, item_inHands_aux)
-                    num_inHands = num_inHands_aux
-                    item_inHands = item_inHands_aux
+                    elif lan.to_pick in voice_text:
+                        box = box_number
+                        if box == None:
+                            box = to_pick
+                        item_inHands_aux = searchfor_item(cont_d, voice_text)
+                        num_inHands_aux = number
+                        modify(cont_d, box,+num_inHands_aux, item_inHands_aux)
+                        actual_items = actual_items + num_inHands_aux
+                        num_inHands = num_inHands_aux
+                        item_inHands = item_inHands_aux
+
+
+                elif (lan.orig in voice_text):
+                    if (lan.to_drop in voice_text):
+                        box = box_number
+                        if box == None:
+                            box = to_drop
+                        num_inHands_aux = number
+                        item_inHands_aux = searchfor_item(cont_o, voice_text)
+                        modify(cont_o, box, +num_inHands_aux, item_inHands_aux)
+                        num_inHands = num_inHands - num_inHands_aux
+
+                        if num_inHands == 0:
+                            item_inHands = None
+
+                    elif (lan.to_pick in voice_text):
+                        box = box_number
+                        if box == None:
+                            box = to_pick
+                        num_inHands_aux = number
+                        item_inHands_aux = searchfor_item(cont_o, voice_text)
+                        modify(cont_o, box, -num_inHands_aux, item_inHands_aux)
+
+                        num_inHands = num_inHands_aux
+                        item_inHands = item_inHands_aux
+
 
         except ExpImposible:
             s.speack(lan.imposible)
@@ -251,7 +306,7 @@ with sr.Microphone() as source:
         except sr.RequestError as e:
             print("Could not request results from Wit.ai service; {0}".format(e))
             s.speack(lan.connex)
-        except Exception:
+        except BaseException:
             s.speack(lan.problema)
             print(lan.creo + voice_text)
 

@@ -1,3 +1,5 @@
+name = "Sesí"
+
 class en:
     from_o = " from origin "
     from_d = " from destiny "
@@ -9,10 +11,11 @@ class en:
     ok = " okey"
     bx= ""
     into_d = " into destiny "
+    into_o = " into origin "
     done = "done"
     imposible = "Thats an imposible action"
 
-    hola = " Hi, I am your voice assistant"
+    hola = " Hi, I am your voice assistant" + name
     algo = " Say something!"
     rec_num = " No number has been recognized"
     srry = " I am sorry, I haven't understood what you said"
@@ -35,6 +38,7 @@ class en:
     end = "end"
     res = "resume"
 
+    half_work = "You had done the half of your work"
 
 
 class es:
@@ -50,7 +54,9 @@ class es:
     into_d = " en el destino "
     back = "donde estaba"
 
-    hola = " Hola soy tu asistente de voz"
+    into_o = " en el origen "
+
+    hola = " Hola soy tu asistente de voz" + name
     algo = " Hola, Di algo!"
     rec_num = " No se ha reconocido ningun numero"
     srry = " Person, no he entendido lo que has dicho"
@@ -75,3 +81,5 @@ class es:
 
     end = "finalizar"
     res = "comenzar"
+
+    half_work = "Llevas la mitad del trabajo"
