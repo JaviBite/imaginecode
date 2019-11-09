@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 
 # NOTE: this example requires PyAudio because it uses the Microphone class
+import json
 
 import speech_recognition as sr
-from enum import Enum
+
 # Import the required module for text
 # to speech conversion
 from word2number import w2n
 import pyttsx3
+
 import os
 
 # obtain audio from the microphone
@@ -41,53 +43,18 @@ class Boxes(Enum):
 engine.say("Hola soy tu asistente de voz")
 engine.runAndWait()
 
+WIT_AI_KEY = "Y3FGBAGFPLAM5FU2LIO6WM6EBAZU3AHN"  # Wit.ai keys are 32-character uppercase alphanumeric strings
+
 with sr.Microphone() as source:
+    r.adjust_for_ambient_noise(source)
 
     # leer archivo
 
-    cont_o = [{
-            "name": "blue",
-            "items": {
-                "item": "glass",
-                "n": 5
-            }
-        },
-        {
-            "name": "pink",
-            "items": {
-                "item": "coco",
-                "n": 3
-            }
-        }
-    ]
+    with open('fichero.json') as json_file:
+        data = json.load(json_file)
 
-    cont_d = [
-     {
-        "name": "blue",
-        "items": [
-            {
-                "item": "glass",
-                "n": 3
-            },
-            {
-                "item": "coco",
-                "n": 1
-            }
-        ]
-    },
-    {
-        "name": "blue",
-        "items": [
-            {
-                "item": "glass",
-                "n": 2
-            },
-            {
-                "item": "coco",
-                "n": 2
-            }
-        ]
-    }]
+    cont_o = data["origin"]
+    cont_d = data["destiny"]
 
     print(cont_d)
     print(cont_o)
@@ -99,7 +66,11 @@ with sr.Microphone() as source:
 
     while True:
         print("Say something!")
-        r.adjust_for_ambient_noise(source)
+
+        #Mandar orden
+
+
+        #Escuchar
         audio = r.listen(source)
 
         WIT_AI_KEY = "Y3FGBAGFPLAM5FU2LIO6WM6EBAZU3AHN"  # Wit.ai keys are 32-character uppercase alphanumeric strings
@@ -108,6 +79,8 @@ with sr.Microphone() as source:
 
             number = w2n.word_to_num(voice_text)
             print("Nums: " + str(number) )
+
+
 
             print("Creo que has dicho: " + voice_text)
             engine.say(voice_text)
@@ -123,6 +96,7 @@ with sr.Microphone() as source:
         except sr.RequestError as e:
             print("Could not request results from Wit.ai service; {0}".format(e))
 
+        # Tratar respuesta
 
 # Detecta el color de la caja
 def contains_color (voice_text):
