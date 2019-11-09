@@ -137,7 +137,6 @@ with sr.Microphone() as source:
             try:
                 voice_text = r.recognize_wit(audio, key=WIT_AI_KEY)
 
-                number = w2n.word_to_num(voice_text)
                 print("Nums: " + str(number) )
 
                 if voice_text == "Repite" or voice_text == "No te entiendo":
