@@ -3,6 +3,7 @@
 # NOTE: this example requires PyAudio because it uses the Microphone class
 import json
 import Boxes
+import languages as l
 
 import speech_recognition as sr
 
@@ -19,24 +20,22 @@ import speech_recognition as sr
 
 r = sr.Recognizer()
 
-WIT_AI_KEY = "Y3FGBAGFPLAM5FU2LIO6WM6EBAZU3AHN"  # Wit.ai keys are 32-character uppercase alphanumeric strings
-WIT_AI_KEY_ES = "IECUWB7JXYTAFP4NB25DCM5NFD7TCP4M"
+debug = False
+language = "en"
 
+s.setLanguage(language)
 
+WIT_AI_KEY = "Y3FGBAGFPLAM5FU2LIO6WM6EBAZU3AHN" if language == "en" else "IECUWB7JXYTAFP4NB25DCM5NFD7TCP4M"
 
+lan = l.en if language == "en" else l.es
 
+# return s or es for plurals
+def plural(item):
 
-s.speack("Hi I am your voice assistant")
-
-# engine.say("Hi i am your voice assistant")
-# engine.runAndWait()
-
-# Detecta el color de la frase
-def color_voice(voice_text):
-    for color in Boxes.boxes:
-        if color in voice_text:
-            return color
-    return None
+    if item[-1:] == 's':
+        return "es"
+    else:
+        return "s"
 
 # Detecta el item en cont del voice_text
 def searchfor_item(cont, voice):
@@ -49,8 +48,8 @@ def searchfor_item(cont, voice):
 # Detecta el box de cont del voice_text
 def searchfor_box(cont, voice):
     for box in cont:
-         if box["name"] in voice:
-             return box["name"]
+         if str(box["name"]) in voice:
+             return str(box["name"])
     return "NONE"
 
 # Devuelve la orden de dejar el objeto en un contenedor destion apto
@@ -65,15 +64,16 @@ def orderDrop(cont_d, name_d, number, cont_o, to_drop):
             if item["name"] == name_d and item["n"] != 0:
                 if item["n"] >= number:
                     #item["n"] = item["n"] - number
-                    to_drop[0] = box["name"]
-                    return "Put " + str(number) + " " + item["name"] + " into the " + box["name"] + " box"
+                    to_drop[0] = str(box["name"])
+                    return lan.drop + " " + str(number) + " " + item["name"] + (plural(item["name"]) if number > 1 else "") + \
+                           lan.into_d + str(box["name"]) + " " + lan.bx
                 else:
-                    #aDev = "Put " + str(item["n"] - ) + " " + item["name"] + " into the " + box["name"] \
+                    #aDev = "Put " + str(item["n"] - ) + " " + item["name"] + " into the " + str(box["name"]) \
                     #       + " box and leave the rest one at the origin " + cont_o["name"]
                     #item["n"] = 0
-                    return "Put " + str(number) + " " + item["name"] + " back"
+                    return lan.drop + str(number) + " " + item["name"] + lan.back
 
-    return "There are not " + str(number) + " " + item["name"] + " into the " + box["name"] + " box"
+    return lan.there_not + str(number) + " " + name_d + lan.there
 
 # modifica el contenedor cont_name de la lista cont los objetos item_name + n
 def modify(cont,cont_name,num,item_name):
@@ -88,16 +88,16 @@ def orderPick(cont_d, cont_o, to_pick, to_number):
         for item in box["items"]:
             num = item["n"]
             if num > 0:
-                box_to_search = box["name"]
+                box_to_search = str(box["name"])
                 to_pick[0] = box_to_search
                 to_number[0] = num
                 if box_to_search != "NONE":
-                    return "Pick up " + str(num) + " " + item["name"] + ("s" if num > 1 else "") + \
-                           " from origin box " + box["name"]
+                    return lan.pick + " " + str(num) + " " + item["name"] + (plural(item["name"]) if num > 1 else "") + \
+                           lan.from_o + " " + str(box["name"])
                 else:
-                    return "The task cant be completed"
+                    return lan.task_cant
 
-    return "You have finished your task"
+    return lan.task_end
 
 
 # with sr.Microphone() as source:
@@ -105,7 +105,7 @@ def orderPick(cont_d, cont_o, to_pick, to_number):
 
     # leer archivo
 
-with open('fichero.json') as json_file:
+with open('fichero_en.json') as json_file:
     data = json.load(json_file)
 
 cont_o = data["origin"]
@@ -119,6 +119,7 @@ cont_d = data["destiny"]
     #         print(item["item"] + " " + str(item["n"]))
 
 
+
 ordenTerminada = False
 
 item_inHands = None
@@ -130,6 +131,8 @@ to_pick[0] = None
 to_number = [1]
 to_number[0] = 0
 
+s.speack(lan.hola)
+
 with sr.Microphone() as source:
     r.adjust_for_ambient_noise(source)
 
@@ -138,33 +141,50 @@ with sr.Microphone() as source:
         ord = orderPick(cont_d, cont_o, to_pick, to_number) if item_inHands is None else \
             orderDrop(cont_d, item_inHands, num_inHands, cont_o, to_drop)
 
-        s.speack(ord)
         print("Order: " + ord + "\n")
-        print("Say something!")
+
+        s.speack(ord)
 
         #Escuchar
         #audio = r.listen(source)
 
         try:
-            audio = r.listen(source)
-            voice_text = r.recognize_wit(audio, key=WIT_AI_KEY_ES)
-            #voice_text = sr.recognice()
-            #voice_text = "pick up three glass from origin box blue"
-            # print("escibe: ")
-            # voice_text = input()
-            number = srr.numbers(voice_text)
 
-            print("Usuario ha dicho: " + voice_text)
-            print("Numero transcrito: " + str(number))
+            if debug:
+                print("escribe: ")
+                voice_text = input()
+            else:
+                print("Say something!")
+                audio = r.listen(source)
+                voice_text = r.recognize_wit(audio, key=WIT_AI_KEY)
+                voice_text.replace('ó','o')
 
-            if ("repeat" in voice_text or ("dont" in voice_text and "understand" in voice_text)):
+            if lan.orig in voice_text:
+                before_box = voice_text[0:voice_text.index(lan.orig)]
+                after_box = voice_text[voice_text.index(lan.orig):]
+            else:
+                before_box = voice_text[0:voice_text.index(lan.dest)]
+                after_box = voice_text[voice_text.index(lan.dest):]
+
+            if language == 'es':
+                number = Boxes.toNum(before_box) #srr.numbers(voice_text)
+                box_number = Boxes.toNum(after_box) #srr.numbers(voice_text)
+            else:
+                number = srr.numbers(before_box)
+                box_number = srr.numbers(after_box)
+
+            print(lan.creo + voice_text)
+            print("Item num: " + str(number)+ " Box: " + str(box_number))
+
+
+            if (lan.rpt in voice_text or (lan.unders in voice_text)):
                 # s.speack(ord)
                 print("Repetir orden")
-            elif ("okey" in voice_text or "done" in voice_text ):
+            elif (lan.ok in voice_text or lan.done in voice_text ):
                 print("TODO")
-            elif (" d " in voice_text):
-                if ("drop" in voice_text):
-                    box = color_voice(voice_text)
+            elif (lan.dest in voice_text):
+                if (lan.to_drop in voice_text):
+                    box = box_number
                     if box == None:
                         box = to_drop
                     item_inHands = searchfor_item(cont_d,voice_text)
@@ -172,17 +192,17 @@ with sr.Microphone() as source:
                     item_inHands = None
                     num_inHands = 0
 
-                elif "pick" in voice_text:
-                    box = color_voice(voice_text)
+                elif lan.to_pick in voice_text:
+                    box = box_number
                     if box == None:
                         box = to_pick
                     item_inHands = searchfor_item(cont_d, voice_text)
                     num_inHands = number
                     modify(cont_d, box,+num_inHands, item_inHands)
 
-            elif (" o " in voice_text):
-                if ("drop" in voice_text):
-                    box = color_voice(voice_text)
+            elif (lan.orig in voice_text):
+                if (lan.to_drop in voice_text):
+                    box = box_number
                     if box == None:
                         box = to_drop
                     item_inHands = searchfor_item(cont_o, voice_text)
@@ -190,35 +210,21 @@ with sr.Microphone() as source:
                     item_inHands = None
                     num_inHands = 0
 
-                elif ("pick" in voice_text):
-                    box = color_voice(voice_text)
+                elif (lan.to_pick in voice_text):
+                    box = box_number
                     if box == None:
                         box = to_pick
                     num_inHands = number
                     item_inHands = searchfor_item(cont_o, voice_text)
                     modify(cont_o, box, -num_inHands, item_inHands)
 
-                # ordDest = "none"
-                #
-                # for box in cont_o:
-                #     for item in box["items"]:
-                #         if item["name"] in voice_text:
-                #             ordDest = orderDest(cont_d, item["name"], number, box["name"])
-                #             # ordenTerminada = True
-                #
-                # while ("okey" not in voice_text):
-                #     s.speack(ordDest)
-                #     print("Ord2: " + ordDest + "\n")
-                #     # Tratar respuesta
-                #     voice_text = sr.recognice()
 
-
-        except ValueError:
-            s.speack("I didnt recognize any number")
-            print("Usuario ha dicho: " + voice_text)
+        except ValueError as e:
+            s.speack(lan.problema)
+            print(lan.creo + voice_text)
         except sr.UnknownValueError:
-            s.speack("Sorry, I didnt understand you phrase")
+            s.speack(lan.srry)
         except sr.RequestError as e:
             print("Could not request results from Wit.ai service; {0}".format(e))
-            s.speack("Sorry, I cant connect to my system")
+            s.speack(lan.connex)
 

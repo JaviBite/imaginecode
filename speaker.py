@@ -7,7 +7,13 @@ v_en = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_
 v_es = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_ES-ES_HELENA_11.0"
 
 engine.setProperty('rate', 115)
-engine.setProperty('voice', v_en)
+engine.setProperty('voice', v_es)
+
+def setLanguage(lan):
+   if lan == 'es':
+       engine.setProperty('voice', v_es)
+   else:
+       engine.setProperty('voice', v_en)
 
 def speack(string):
     engine.say(string)
