@@ -3,17 +3,17 @@
 "n_dest" : 2,
 "origin": [{
             "name": "blue",
-            "items": {
-                "item": "glass",
+            "items": [{
+                "name": "glass",
                 "n": 5
-            }
+            }]
         },
         {
             "name": "pink",
-            "items": {
-                "item": "coco",
+            "items": [{
+                "name": "coco",
                 "n": 3
-            }
+            }]
         }
     ],
 
@@ -22,11 +22,11 @@
         "name": "blue",
         "items": [
             {
-                "item": "glass",
+                "name": "glass",
                 "n": 3
             },
             {
-                "item": "coco",
+                "name": "coco",
                 "n": 1
             }
         ]
@@ -35,11 +35,11 @@
         "name": "blue",
         "items": [
             {
-                "item": "glass",
+                "name": "glass",
                 "n": 2
             },
             {
-                "item": "coco",
+                "name": "coco",
                 "n": 2
             }
         ]

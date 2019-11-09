@@ -2,6 +2,7 @@
 
 # NOTE: this example requires PyAudio because it uses the Microphone class
 import json
+from enum import Enum
 
 import speech_recognition as sr
 
@@ -45,6 +46,42 @@ engine.runAndWait()
 
 WIT_AI_KEY = "Y3FGBAGFPLAM5FU2LIO6WM6EBAZU3AHN"  # Wit.ai keys are 32-character uppercase alphanumeric strings
 
+
+# Detecta el color de la caja
+def contains_color(voice_text):
+    for color in Boxes:
+        if color in voice_text:
+            return color
+
+
+# El color de la caja de destino será el detectado
+def Search(voice_text):
+    if "destiny" in voice_text:
+        for box in cont_d:
+            color = contains_color(voice_text)
+
+
+def searchfor(cont, item_to):
+    for box in cont:
+        for item in box["items"]:
+             print(item["name"])
+             if item["name"] == item_to:
+                 return box["name"]
+    return "NONE"
+
+
+def order(cont_d, cont_o):
+    for box in cont_d:
+        for item in box["items"]:
+            num = item["n"]
+            if num > 0:
+                box_to_search = searchfor(cont_o, item["name"])
+                if box_to_search != "NONE":
+                    return "Pick up " + str(num) + " " + item["name"] + ("s" if num > 1 else "") + " from origin box" + box_to_search
+
+    return "ERROR"
+
+
 with sr.Microphone() as source:
     r.adjust_for_ambient_noise(source)
 
@@ -56,18 +93,23 @@ with sr.Microphone() as source:
     cont_o = data["origin"]
     cont_d = data["destiny"]
 
-    print(cont_d)
-    print(cont_o)
-    for d in cont_d:
-        print(d["name"])
-        for item in d["items"]:
-            print(item["item"] + " " + str(item["n"]))
+    # print(cont_d)
+    # print(cont_o)
+    # for d in cont_d:
+    #     print(d["name"])
+    #     for item in d["items"]:
+    #         print(item["item"] + " " + str(item["n"]))
 
 
     while True:
         print("Say something!")
 
         #Mandar orden
+        ord = order(cont_d, cont_o)
+        engine.say(ord)
+        print(ord + "\n")
+        engine.runAndWait()
+
 
 
         #Escuchar
@@ -97,15 +139,3 @@ with sr.Microphone() as source:
             print("Could not request results from Wit.ai service; {0}".format(e))
 
         # Tratar respuesta
-
-# Detecta el color de la caja
-def contains_color (voice_text):
-    for color in Boxes:
-        if color in voice_text:
-            return color
-
-# El color de la caja de destino será el detectado
-def Search(voice_text):
-    if "destiny" in voice_text:
-        for box in cont_d:
-            color = contains_color(voice_text)
