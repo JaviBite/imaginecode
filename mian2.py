@@ -45,6 +45,7 @@ engine.say("Hola soy tu asistente de voz")
 engine.runAndWait()
 
 WIT_AI_KEY = "Y3FGBAGFPLAM5FU2LIO6WM6EBAZU3AHN"  # Wit.ai keys are 32-character uppercase alphanumeric strings
+WIT_AI_KEY_ES = "IECUWB7JXYTAFP4NB25DCM5NFD7TCP4M"
 
 
 # Detecta el color de la caja
@@ -130,12 +131,10 @@ with sr.Microphone() as source:
         #Escuchar
         audio = r.listen(source)
 
-        WIT_AI_KEY = "Y3FGBAGFPLAM5FU2LIO6WM6EBAZU3AHN"  # Wit.ai keys are 32-character uppercase alphanumeric strings
-
         ordenTerminada = False
         while not ordenTerminada:
             try:
-                voice_text = r.recognize_wit(audio, key=WIT_AI_KEY)
+                voice_text = r.recognize_wit(audio, key=WIT_AI_KEY_ES)
 
                 print("Nums: " + str(number) )
 
