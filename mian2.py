@@ -81,12 +81,17 @@ def order(cont_d, cont_o):
 
     return "ERROR"
 
-def orderDest(cont_d, name_d, number):
+def orderDest(cont_d, name_d, number, cont_o):
     for box in cont_d:
         for item in box["items"]:
             if item["name"] == name_d and item ["n"]!=0:
-                item["n"] = item["n"] - number
-                return "Put " + str(number) + " " + item["name"] + " into the " + box["name"] + " box"
+                if item["n"] >= number:
+                    item["n"] = item["n"] - number
+                    return "Put " + str(number) + " " + item["name"] + " into the " + box["name"] + " box"
+                else:
+                    aDev = "Put " + str(item["n"]) + " " + item["name"] + " into the " + box["name"] + " box and leave the rest one at the origin " + cont_o["name"]
+                    item["n"] = 0
+                    return aDev
 
     return "There are not " + str(number) + " " + item["name"] + " into the " + box["name"] + " box"
 
@@ -132,10 +137,11 @@ with sr.Microphone() as source:
             number = w2n.word_to_num(voice_text)
             print("Nums: " + str(number) )
 
+
             for box in cont_o:
                 for item in box["items"]:
                   if item["name"] in voice_text:
-                      ordDest = orderDest(cont_d, item["name"], number)
+                      ordDest = orderDest(cont_d, item["name"], number, box["name"])
                       engine.say(ordDest)
                       print(ordDest + "\n")
                       engine.runAndWait()
