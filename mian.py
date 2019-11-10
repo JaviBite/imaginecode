@@ -23,7 +23,7 @@ class ExpImposible(BaseException):
 
 r = sr.Recognizer()
 
-debug = True
+debug = False
 language = "es"
 
 s.setLanguage(language)
