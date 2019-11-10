@@ -23,7 +23,7 @@ class ExpImposible(BaseException):
 
 r = sr.Recognizer()
 
-debug = False
+debug = True
 language = "es"
 
 s.setLanguage(language)
@@ -245,6 +245,8 @@ with sr.Microphone() as source:
                         if box == None:
                             box = to_drop
                         num_inHands_aux = number
+                        if (num_inHands_aux > num_inHands):
+                            raise ExpImposible
                         item_inHands_aux = searchfor_item(cont_d,voice_text)
                         modify(cont_d, box, -num_inHands_aux, item_inHands_aux)
                         num_inHands = num_inHands - num_inHands_aux
@@ -276,6 +278,8 @@ with sr.Microphone() as source:
                         if box == None:
                             box = to_drop
                         num_inHands_aux = number
+                        if (num_inHands_aux > num_inHands):
+                            raise ExpImposible
                         item_inHands_aux = searchfor_item(cont_o, voice_text)
                         modify(cont_o, box, +num_inHands_aux, item_inHands_aux)
                         num_inHands = num_inHands - num_inHands_aux
